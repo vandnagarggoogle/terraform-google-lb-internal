@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-variable "project" {
-  description = "The project to deploy to, if not set the default provider project is used."
+variable "project_id" {
+  description = "The project_id to deploy to, if not set the default provider project_id is used."
   type        = string
   default     = ""
 }
@@ -45,7 +45,7 @@ variable "subnetwork" {
 }
 
 variable "network_project" {
-  description = "Name of the project for the network. Useful for shared VPC. Default is var.project."
+  description = "Name of the project for the network. Useful for shared VPC. Default is var.project_id."
   type        = string
   default     = ""
 }

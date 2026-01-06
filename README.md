@@ -77,9 +77,9 @@ module "gce-ilb" {
 | labels | The labels to attach to resources created by this module. | `map(string)` | `{}` | no |
 | name | Name for the forwarding rule and prefix for supporting resources. | `string` | n/a | yes |
 | network | Name of the network to create resources in. | `string` | `"default"` | no |
-| network\_project | Name of the project for the network. Useful for shared VPC. Default is var.project. | `string` | `""` | no |
+| network\_project | Name of the project for the network. Useful for shared VPC. Default is var.project\_id. | `string` | `""` | no |
 | ports | List of ports to forward to backend services. Max is 5. The `ports` or `all_ports` are mutually exclusive. | `list(string)` | `null` | no |
-| project | The project to deploy to, if not set the default provider project is used. | `string` | `""` | no |
+| project\_id | The project\_id to deploy to, if not set the default provider project\_id is used. | `string` | `""` | no |
 | region | Region for cloud resources. | `string` | `"us-central1"` | no |
 | service\_label | Service label is used to create internal DNS name | `string` | `null` | no |
 | session\_affinity | The session affinity for the backends example: NONE, CLIENT\_IP. Default is `NONE`. | `string` | `"NONE"` | no |
