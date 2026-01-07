@@ -17,6 +17,9 @@ spec:
           name: all_ports
           title: All Ports
           level: 1
+          altDefaults:
+            - type: ALTERNATE_TYPE_DC
+              value: false
         backends:
           name: backends
           title: Backends
@@ -38,6 +41,11 @@ spec:
         health_check:
           name: health_check
           title: Health Check
+          altDefaults:
+            - type: ALTERNATE_TYPE_DC
+              value:
+                enable_log: false
+                type: http
         ip_address:
           name: ip_address
           title: Ip Address
@@ -66,6 +74,8 @@ spec:
         network:
           name: network
           title: Network
+          regexValidation: ^(projects\/[a-z0-9\-]+\/global\/networks\/[a-zA-Z0-9\-_]+|[a-zA-Z0-9\-_]+)$
+          validation: Network must be a valid network name or a full resource path.
           level: 1
         network_project:
           name: network_project
@@ -73,6 +83,8 @@ spec:
         ports:
           name: ports
           title: Ports
+          regexValidation: ^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$
+          validation: Must be a valid port number between 1 and 65535.
           level: 1
         project_id:
           name: project_id
