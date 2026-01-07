@@ -46,7 +46,7 @@ spec:
               value:
                 enable_log: false
                 type: http
-                port: "80"
+                port: 80
         ip_address:
           name: ip_address
           title: Ip Address
