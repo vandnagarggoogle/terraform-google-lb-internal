@@ -16,10 +16,6 @@ spec:
         all_ports:
           name: all_ports
           title: All Ports
-          level: 1
-          altDefaults:
-            - type: ALTERNATE_TYPE_DC
-              value: false
         backends:
           name: backends
           title: Backends
@@ -44,9 +40,7 @@ spec:
           altDefaults:
             - type: ALTERNATE_TYPE_DC
               value:
-                enable_log: false
                 type: http
-                port: 80
         ip_address:
           name: ip_address
           title: Ip Address
@@ -60,7 +54,6 @@ spec:
               value: TCP
             - label: UDP
               value: UDP
-          level: 1
         is_mirroring_collector:
           name: is_mirroring_collector
           title: Is Mirroring Collector
@@ -77,7 +70,6 @@ spec:
           title: Network
           regexValidation: ^(projects\/[a-z0-9\-]+\/global\/networks\/[a-zA-Z0-9\-_]+|[a-zA-Z0-9\-_]+)$
           validation: Network must be a valid network name or a full resource path.
-          level: 1
         network_project:
           name: network_project
           title: Network Project
@@ -86,18 +78,12 @@ spec:
           title: Ports
           regexValidation: ^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$
           validation: Must be a valid port number between 1 and 65535.
-          level: 1
-          altDefaults:
-            - type: ALTERNATE_TYPE_DC
-              value: ["80"]
         project_id:
           name: project_id
           title: Project Id
-          level: 1
         region:
           name: region
           title: Region
-          level: 1
         service_label:
           name: service_label
           title: Service Label
@@ -118,7 +104,6 @@ spec:
         subnetwork:
           name: subnetwork
           title: Subnetwork
-          level: 1
         target_service_accounts:
           name: target_service_accounts
           title: Target Service Accounts
