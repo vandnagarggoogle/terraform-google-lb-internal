@@ -102,11 +102,13 @@ variable "health_check" {
 variable "source_tags" {
   description = "List of source tags for traffic between the internal load balancer."
   type        = list(string)
+  default     = []
 }
 
 variable "target_tags" {
   description = "List of target tags for traffic between the internal load balancer."
   type        = list(string)
+  default     = []
 }
 
 variable "source_ip_ranges" {
