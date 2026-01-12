@@ -1,4 +1,4 @@
-# Copyright 2022 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ spec:
     source:
       repo: https://github.com/vandnagarggoogle/terraform-google-lb-internal.git
       sourceType: git
-    version: 1.0.11
+    version: 1.0.12
     actuationTool:
       flavor: Terraform
       version: ">= 1.3"
@@ -85,14 +85,19 @@ spec:
         required: true
       - name: backends
         description: List of backends, should be a map of key-value pairs for each backend, must have the 'group' key.
-        varType: list(any)
+        varType: |-
+          list(object({
+              group       = string
+              description = optional(string)
+              failover    = optional(bool)
+            }))
         required: true
         connections:
           - source:
               source: github.com/terraform-google-modules/terraform-google-vm//modules/mig
               version: ">= 12.0"
             spec:
-              outputExpr: "[{\"group\": instance_group}]"
+              outputExpr: "{\"group\": c}"
       - name: session_affinity
         description: "The session affinity for the backends example: NONE, CLIENT_IP. Default is `NONE`."
         varType: string

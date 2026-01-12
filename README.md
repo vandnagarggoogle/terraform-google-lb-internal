@@ -64,7 +64,7 @@ module "gce-ilb" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | all\_ports | Boolean for all\_ports setting on forwarding rule. The `ports` or `all_ports` are mutually exclusive. | `bool` | `false` | no |
-| backends | List of backends, should be a map of key-value pairs for each backend, must have the 'group' key. | `list(any)` | n/a | yes |
+| backends | List of backends, should be a map of key-value pairs for each backend, must have the 'group' key. | <pre>list(object({<br>    group       = string<br>    description = optional(string)<br>    failover    = optional(bool)<br>  }))</pre> | n/a | yes |
 | connection\_draining\_timeout\_sec | Time for which instance will be drained | `number` | `null` | no |
 | create\_backend\_firewall | Controls if firewall rules for the backends will be created or not. Health-check firewall rules are controlled separately. | `bool` | `true` | no |
 | create\_health\_check\_firewall | Controls if firewall rules for the health check will be created or not. If this rule is not present backend healthcheck will fail. | `bool` | `true` | no |
