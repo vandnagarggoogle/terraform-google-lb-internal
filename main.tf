@@ -168,7 +168,7 @@ resource "google_compute_firewall" "default-ilb-fw" {
   source_ranges           = var.source_ip_ranges
   source_tags             = length(var.source_tags) > 0 ? var.source_tags : null
   source_service_accounts = var.source_service_accounts
-  target_tags             = length(var.target_tags > 0 ? var.target_tags : null)
+  target_tags             = length(var.target_tags) > 0 ? var.target_tags : null
   target_service_accounts = var.target_service_accounts
 
   dynamic "log_config" {
