@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-
 locals {
+  # Resolve the subnetwork to use. 
+  # If var.subnetwork is not provided, try to find a PRIVATE subnet in the subnets list.
   resolved_subnetwork = (
-    var.subnetwork != "" ? var.subnetwork :
+    var.subnetwork != "" && var.subnetwork != null ? var.subnetwork :
     try(
       [
         for s in var.subnets : s.id
@@ -27,8 +28,9 @@ locals {
     )
   )
 
+  # Logic to determine source IP ranges for the firewall
   resolved_source_ip_ranges = (
-    try(length(var.source_ip_ranges), 0) > 0 ? var.source_ip_ranges :
+    length(try(var.source_ip_ranges, [])) > 0 ? var.source_ip_ranges :
     try(
       [
         for s in var.subnets : s.ip_cidr_range
@@ -39,13 +41,15 @@ locals {
   )
 }
 
-
 data "google_compute_network" "network" {
   name    = var.network
   project = var.network_project == "" ? var.project_id : var.network_project
 }
 
+# Fix: Added a count with an explicit null check to prevent the data source 
+# from running with an empty name, which causes the 'must provide either self_link or name' error.
 data "google_compute_subnetwork" "network" {
+  count   = (var.subnetwork != "" && var.subnetwork != null) ? 1 : 0
   name    = var.subnetwork
   project = var.network_project == "" ? var.project_id : var.network_project
   region  = var.region
@@ -56,7 +60,11 @@ resource "google_compute_forwarding_rule" "default" {
   name                   = var.name
   region                 = var.region
   network                = data.google_compute_network.network.self_link
-  subnetwork             = var.subnetwork != "" ? data.google_compute_subnetwork.network.self_link : local.resolved_subnetwork
+  
+  # Use the self_link from the data source if a name was provided, 
+  # otherwise use the fallback resolved in locals.
+  subnetwork             = (var.subnetwork != "" && var.subnetwork != null) ? try(data.google_compute_subnetwork.network[0].self_link, var.subnetwork) : local.resolved_subnetwork
+  
   allow_global_access    = var.global_access
   load_balancing_scheme  = "INTERNAL"
   is_mirroring_collector = var.is_mirroring_collector
@@ -76,10 +84,9 @@ resource "google_compute_region_backend_service" "default" {
     "http"  = "${var.name}-with-http-hc",
     "https" = "${var.name}-with-https-hc",
   }[var.health_check["type"]]
-  region   = var.region
-  protocol = var.ip_protocol
-  network  = data.google_compute_network.network.self_link
-  # Do not try to add timeout_sec, as it is has no impact. See https://github.com/terraform-google-modules/terraform-google-lb-internal/issues/53#issuecomment-893427675
+  region                          = var.region
+  protocol                        = var.ip_protocol
+  network                         = data.google_compute_network.network.self_link
   connection_draining_timeout_sec = var.connection_draining_timeout_sec
   session_affinity                = var.session_affinity
 
