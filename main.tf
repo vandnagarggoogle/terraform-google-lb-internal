@@ -15,8 +15,6 @@
  */
 
 locals {
-  # Resolve the subnetwork to use. 
-  # If var.subnetwork is not provided, try to find a PRIVATE subnet in the subnets list.
   resolved_subnetwork = (
     var.subnetwork != "" && var.subnetwork != null ? var.subnetwork :
     try(
@@ -41,13 +39,12 @@ locals {
   )
 }
 
+
 data "google_compute_network" "network" {
   name    = var.network
   project = var.network_project == "" ? var.project_id : var.network_project
 }
 
-# Fix: Added a count with an explicit null check to prevent the data source 
-# from running with an empty name, which causes the 'must provide either self_link or name' error.
 data "google_compute_subnetwork" "network" {
   count   = (var.subnetwork != "" && var.subnetwork != null) ? 1 : 0
   name    = var.subnetwork
@@ -60,9 +57,6 @@ resource "google_compute_forwarding_rule" "default" {
   name                   = var.name
   region                 = var.region
   network                = data.google_compute_network.network.self_link
-  
-  # Use the self_link from the data source if a name was provided, 
-  # otherwise use the fallback resolved in locals.
   subnetwork             = (var.subnetwork != "" && var.subnetwork != null) ? try(data.google_compute_subnetwork.network[0].self_link, var.subnetwork) : local.resolved_subnetwork
   
   allow_global_access    = var.global_access
