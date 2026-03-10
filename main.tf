@@ -58,7 +58,6 @@ resource "google_compute_forwarding_rule" "default" {
   region                 = var.region
   network                = data.google_compute_network.network.self_link
   subnetwork             = (var.subnetwork != "" && var.subnetwork != null) ? try(data.google_compute_subnetwork.network[0].self_link, var.subnetwork) : local.resolved_subnetwork
-  
   allow_global_access    = var.global_access
   load_balancing_scheme  = "INTERNAL"
   is_mirroring_collector = var.is_mirroring_collector
