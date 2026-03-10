@@ -51,7 +51,7 @@ resource "google_compute_network" "test" {
 
 resource "google_compute_subnetwork" "test" {
   project       = var.project_id
-  name          = local.resource_name
+  name          = "ilb-minimal-subnet"
   network       = google_compute_network.test.name
   region        = var.region
   ip_cidr_range = "10.2.0.0/16"
