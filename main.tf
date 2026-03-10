@@ -15,18 +15,26 @@
  */
 
 locals {
-  resolved_subnetwork = (
-    var.subnetwork != "" && var.subnetwork != null ? var.subnetwork :
-    try(
-      [
-        for s in var.subnets : s.id
-        if s.region == var.region && (s.purpose == "PRIVATE")
-      ][0],
-      ""
-    )
+  # Logic: Discovery fallback. 
+  # Finds the first PRIVATE subnet in the region from the 'var.subnets' list.
+  auto_discovered_subnet = try(
+    [
+      for s in var.subnets : s.id
+      if s.region == var.region && (s.purpose == "PRIVATE")
+    ][0],
+    ""
   )
 
-  # Logic to determine source IP ranges for the firewall
+  # Logic: Determination of which subnetwork to use.
+  # 1. Use the explicitly looked-up self_link if found by name.
+  # 2. Otherwise, if var.subnetwork was provided, use it directly (it might be a self_link).
+  # 3. Finally, fall back to the auto-discovered subnet from the connection list.
+  final_subnetwork = try(
+    data.google_compute_subnetworks.lookup.subnetworks[0].self_link, # Found by name lookup
+    var.subnetwork != "" && var.subnetwork != null ? var.subnetwork : local.auto_discovered_subnet # Provided string or auto-discovery
+  )
+
+  # Logic: Determine source IP ranges for the firewall
   resolved_source_ip_ranges = (
     length(try(var.source_ip_ranges, [])) > 0 ? var.source_ip_ranges :
     try(
@@ -39,17 +47,19 @@ locals {
   )
 }
 
-
 data "google_compute_network" "network" {
   name    = var.network
   project = var.network_project == "" ? var.project_id : var.network_project
 }
 
-data "google_compute_subnetwork" "network" {
-  count   = (var.subnetwork != "" && var.subnetwork != null) ? 1 : 0
-  name    = var.subnetwork
+# Fix: Use the PLURAL data source. 
+# This does not require a 'count' and will not error if var.subnetwork is empty.
+# It returns an empty list if no match is found, avoiding the 'must provide name' error.
+data "google_compute_subnetworks" "lookup" {
   project = var.network_project == "" ? var.project_id : var.network_project
   region  = var.region
+  # Filter only if a name is provided; otherwise, use a dummy filter to return nothing.
+  filter  = var.subnetwork != "" && var.subnetwork != null ? "name = \"${var.subnetwork}\"" : "name = \"DISABLED_BY_MODULE_LOGIC\""
 }
 
 resource "google_compute_forwarding_rule" "default" {
@@ -57,7 +67,10 @@ resource "google_compute_forwarding_rule" "default" {
   name                   = var.name
   region                 = var.region
   network                = data.google_compute_network.network.self_link
-  subnetwork             = (var.subnetwork != "" && var.subnetwork != null) ? try(data.google_compute_subnetwork.network[0].self_link, var.subnetwork) : local.resolved_subnetwork
+  
+  # Uses the prioritized selection from locals
+  subnetwork             = local.final_subnetwork
+  
   allow_global_access    = var.global_access
   load_balancing_scheme  = "INTERNAL"
   is_mirroring_collector = var.is_mirroring_collector
